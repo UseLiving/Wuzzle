@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/wuzzle-logo.svg">
+<style>body{margin:0}</style>
+</head>
+<body>
+<title>Wuzzle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,800&display=swap">
+<style>
+/* Layout: playful cartoon launchpad. Hero + mascot → rule marquee → shape-a-wuzzle studio → sandbox market (hooks fire, rules refuse, wuzzle posts) → rules → hooks → shelf */
+:root{
+  --bg:#FFF7EE; --card:#FFFFFF; --ink:#2B1B14; --ink2:#5C463B;
+  --clay:#FF7A3D; --mint:#4FE3A8; --sky:#7CC6FF; --butter:#FFD84D; --lilac:#C9A7FF; --rose:#FF8FB1;
+  --display:"Bagel Fat One","Arial Black",Impact,sans-serif; --body:"DM Sans",system-ui,-apple-system,sans-serif;
+  --line:2.5px solid var(--ink); --shadow:5px 5px 0 var(--ink); --r:18px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);background-image:radial-gradient(circle,rgba(43,27,20,.13) 1.2px,transparent 1.4px);background-size:22px 22px;color:var(--ink);font-family:var(--body);font-weight:500;font-size:16px;line-height:1.55;overflow-x:hidden}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;line-height:1.02;text-wrap:balance}
+:focus-visible{outline:3px solid var(--clay);outline-offset:3px}
+button,input,textarea,select{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;gap:10px;white-space:nowrap;border:var(--line);border-radius:999px;background:var(--card);padding:12px 22px;font-weight:800;cursor:pointer;box-shadow:4px 4px 0 var(--ink);text-decoration:none;color:var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.clay{background:var(--clay)} .btn.mint{background:var(--mint)} .btn.butter{background:var(--butter)} .btn.sky{background:var(--sky)}
+.btn.sm{padding:8px 14px;font-size:14px;box-shadow:3px 3px 0 var(--ink)}
+.chip{display:inline-flex;align-items:center;border:2px solid var(--ink);border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:var(--card)}
+.card{background:var(--card);border:var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(255,247,238,.92);backdrop-filter:blur(8px);border-bottom:2px solid rgba(43,27,20,.08)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:72px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:26px;text-decoration:none;color:var(--ink)}
+.brand svg{width:40px;height:40px}
+nav{display:flex;gap:26px;align-items:center;font-weight:800}
+nav a{color:var(--ink);text-decoration:none}
+nav a:hover{color:var(--clay)}
+@media (max-width:820px){nav a:not(.btn){display:none}}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:center;padding-block:48px 40px}
+@media (max-width:900px){.hero{grid-template-columns:1fr}}
+.tags{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.tags .chip:nth-child(1){background:var(--rose);transform:rotate(-3deg)}
+.tags .chip:nth-child(2){background:var(--sky);transform:rotate(2deg)}
+.tags .chip:nth-child(3){background:var(--butter);transform:rotate(-1deg)}
+.hero h1{font-size:clamp(48px,7.6vw,96px);letter-spacing:.005em}
+.pop{display:inline-block;color:#4FA3FF;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:5px 5px 0 var(--ink);transform:rotate(-3deg)}
+.lede{font-size:clamp(18px,1.6vw,21px);font-weight:700;max-width:34em;margin:24px 0 30px}
+.ctas{display:flex;gap:14px;flex-wrap:wrap}
+.mascot{position:relative;display:grid;place-items:center}
+.mascot svg{width:min(100%,420px);height:auto;overflow:visible}
+.sticker{position:absolute;font-family:var(--display);font-size:18px;border:var(--line);border-radius:999px;padding:8px 16px;box-shadow:4px 4px 0 var(--ink)}
+.sticker.a{right:4%;top:12%;background:var(--lilac);transform:rotate(8deg)}
+.sticker.b{left:2%;bottom:14%;background:var(--mint);transform:rotate(-6deg)}
+@keyframes bob{50%{transform:translateY(-10px)}}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.g-body{animation:bob 3.4s ease-in-out infinite;transform-box:fill-box}
+.g-eye{transform-box:fill-box;transform-origin:center;animation:blink 4.5s infinite}
+
+.marquee{border-block:var(--line);background:var(--ink);color:var(--bg);overflow:hidden;white-space:nowrap;padding-block:12px;font-family:var(--display);font-size:20px}
+.marquee div{display:inline-block;animation:slide 32s linear infinite}
+.marquee span{margin:0 18px}
+.marquee b{color:var(--butter);font-weight:400}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+section{padding-block:80px 0}
+.shead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px;margin-bottom:28px}
+.shead h2{font-size:clamp(38px,5vw,60px)}
+.shead p{margin:10px 0 0;font-weight:700;max-width:38em;color:var(--ink2)}
+
+/* studio */
+.studio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:920px){.studio{grid-template-columns:1fr}}
+.form{padding:22px;display:grid;gap:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+input[type=text],input[type=number],textarea{width:100%;border:var(--line);border-radius:12px;background:var(--bg);padding:10px 12px;font-weight:700}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus{outline:none;background:#fff;box-shadow:3px 3px 0 var(--clay)}
+.swatches{display:flex;gap:10px}
+.swatches button{width:34px;height:34px;border-radius:50%;border:var(--line);cursor:pointer}
+.swatches button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--bg),0 0 0 6px var(--ink)}
+.hooklist{display:grid;gap:10px}
+.hk{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;border:2px solid var(--ink);border-radius:14px;padding:10px 12px;background:var(--bg)}
+.hk input[type=checkbox]{width:20px;height:20px;accent-color:var(--clay);margin-top:3px}
+.hk b{font-family:var(--display);font-weight:400;font-size:18px}
+.hk p{margin:2px 0 0;font-size:14px;font-weight:600;color:var(--ink2)}
+.hk input[type=number]{width:64px;padding:2px 6px;border-width:2px;border-radius:8px;display:inline-block;font-size:14px}
+.caps{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fine{font-size:13px;font-weight:700;color:var(--ink2);margin:0}
+
+.wuzzlecard{padding:22px;display:grid;gap:16px;position:relative}
+.gc-top{display:flex;gap:14px;align-items:center}
+.gc-top svg{width:84px;height:84px;flex:none}
+.gc-top h3{font-size:34px}
+.gc-top .tk{font-weight:800;color:var(--ink2)}
+.state{display:inline-flex;align-items:center;gap:8px}
+.state i{width:10px;height:10px;border-radius:50%;background:var(--ink2)}
+.state.on i{background:var(--mint);box-shadow:0 0 0 3px rgba(79,227,168,.35)}
+.mission{border:2px dashed var(--ink);border-radius:14px;padding:12px 14px;font-weight:700;background:var(--bg)}
+.posts{display:grid;gap:10px}
+.post{border:2px solid var(--ink);border-radius:14px;padding:12px 14px;background:#fff;display:grid;gap:6px}
+.post .who{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800;color:var(--ink2)}
+.post p{margin:0;font-weight:600;white-space:pre-wrap}
+.post.thinking p{color:var(--ink2);font-style:italic}
+.post.refusal{background:#FFE9E2}
+.ai{font-size:12px;font-weight:800}
+
+/* sandbox */
+.sandbox{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:22px;align-items:start}
+@media (max-width:920px){.sandbox{grid-template-columns:1fr}}
+.panel{padding:20px;display:grid;gap:16px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{border:2px solid var(--ink);border-radius:14px;padding:10px 12px;background:var(--bg);min-width:0}
+.stat span{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2)}
+.stat strong{font-family:var(--display);font-weight:400;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.meter{height:16px;border:2px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--bg)}
+.meter i{display:block;height:100%;background:repeating-linear-gradient(45deg,var(--clay) 0 8px,#ff935f 8px 16px);transition:width .3s}
+.evgroup{display:grid;gap:8px}
+.evgroup h4{margin:0;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.evbtns{display:flex;flex-wrap:wrap;gap:8px}
+.ask{display:flex;gap:8px}
+.ask input{flex:1;min-width:0}
+.receipts{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:430px;overflow:auto}
+.receipts li{border:2px solid var(--ink);border-radius:12px;padding:9px 12px;background:#fff;font-size:14px;font-weight:600;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.receipts li .tag{font-size:11px;font-weight:800;border:2px solid var(--ink);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.receipts li.ok .tag{background:var(--mint)}
+.receipts li.refused .tag{background:var(--rose)}
+.receipts li.info .tag{background:var(--sky)}
+.receipts li.hook .tag{background:var(--butter)}
+.receipts small{display:block;color:var(--ink2);font-weight:700;font-size:12px;margin-top:2px}
+.simnote{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2)}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+@media (max-width:1000px){.rules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.rules{grid-template-columns:1fr}}
+.rule{padding:16px 18px;display:grid;gap:8px;align-content:start}
+.rule .chip{justify-self:start;background:var(--ink);color:var(--bg)}
+.rule h3{font-size:22px}
+.rule p{margin:0;font-size:14.5px;font-weight:600;color:var(--ink2)}
+.rule:nth-child(4n+1){transform:rotate(-.6deg)} .rule:nth-child(4n+3){transform:rotate(.6deg)}
+
+.hooks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.hooks{grid-template-columns:1fr}}
+.hookc{padding:16px 18px;display:grid;gap:6px}
+.hookc h3{font-size:22px}
+.hookc p{margin:0;font-size:14.5px;font-weight:600}
+.hookc.m{background:var(--mint)} .hookc.b{background:var(--butter)} .hookc.s{background:var(--sky)} .hookc.l{background:var(--lilac)} .hookc.r{background:var(--rose)} .hookc.c{background:#FFB48F}
+
+.fee{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:center;padding:24px}
+@media (max-width:820px){.fee{grid-template-columns:1fr}}
+.feebar{display:flex;height:56px;border:var(--line);border-radius:14px;overflow:hidden;font-weight:800}
+.feebar div{display:grid;place-items:center;border-right:var(--line);font-size:14px}
+.feebar div:last-child{border-right:0}
+.feelist{display:grid;gap:8px;margin:0;padding:0;list-style:none;font-weight:700}
+.feelist li{display:flex;gap:10px;align-items:center}
+.feelist i{width:18px;height:18px;border:2px solid var(--ink);border-radius:5px;flex:none}
+
+.shelf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media (max-width:900px){.shelf{grid-template-columns:1fr}}
+.gol{padding:18px;display:grid;gap:12px;align-content:start}
+.gol .top{display:flex;gap:12px;align-items:center}
+.gol .top svg{width:62px;height:62px;flex:none}
+.gol h3{font-size:26px}
+.gol p{margin:0;font-weight:600}
+.gol .hks{display:flex;flex-wrap:wrap;gap:6px}
+.gol.c1{background:var(--sky)} .gol.c2{background:var(--butter)} .gol.c3{background:var(--lilac)}
+
+footer{margin-top:90px;border-top:var(--line);background:var(--ink);color:var(--bg)}
+footer .wrap{padding-block:34px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
+footer .brand{color:var(--bg)}
+footer p{margin:0;max-width:52em;font-size:14px;font-weight:600;opacity:.85}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Wuzzle home"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#wuzzle-sym" style="color:#4FA3FF"/></svg>Wuzzle</a>
+    <nav>
+      <a href="#studio">Shape one</a>
+      <a href="#sandbox">Sandbox</a>
+      <a href="#rules">Rules</a>
+      <a class="btn sm butter" href="#studio">Shape a wuzzle</a>
+    </nav>
+  </div>
+</header>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="wuzzle-sym" viewBox="0 0 64 64">
+    <path d="M14 22c0-9 8-15 18-15s18 6 18 15v4c5 1 8 5 8 10 0 6-4 10-9 10l-1 8c0 3-3 5-6 5H23c-3 0-6-2-6-5l-1-8c-5 0-9-4-9-10 0-5 3-9 8-10z" fill="currentColor" stroke="#2B1B14" stroke-width="3" stroke-linejoin="round"/><rect x="23" y="20" width="5" height="9" rx="2.5" fill="#2B1B14"/><rect x="36" y="20" width="5" height="9" rx="2.5" fill="#2B1B14"/><path d="M28 35c2.5 2 5.5 2 8 0" stroke="#2B1B14" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  </symbol>
+</svg>
+
+<main id="top">
+  <div class="wrap hero">
+    <div>
+      <div class="tags"><span class="chip">It posts</span><span class="chip">It pays</span><span class="chip">It burns</span></div>
+      <h1>Every coin gets a <span class="pop">wuzzle.</span></h1>
+      <p class="lede">Launch a coin and shape a wuzzle to work for it. It posts, keeps the promises you set, buys back, burns and pays holders, and the rules stop it from doing anything you didn't allow.</p>
+      <div class="ctas"><a class="btn clay" href="#studio">Shape a wuzzle →</a><a class="btn" href="#sandbox">Try the sandbox</a></div>
+    </div>
+    <div class="mascot" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <ellipse cx="200" cy="372" rx="120" ry="14" fill="#2B1B14" opacity=".14"/>
+        <g class="g-body">
+          <path d="M92 150c0-58 48-100 108-100s108 42 108 100v22c28 6 46 30 46 58 0 36-26 60-56 60l-6 46c-2 18-18 30-36 30H144c-18 0-34-12-36-30l-6-46c-30 0-56-24-56-60 0-28 18-52 46-58z" fill="#4FA3FF" stroke="#2B1B14" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M120 120c10-30 40-50 70-52" stroke="#B5DAFF" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <path d="M178 96l22-16 22 16-22 16z" fill="#FFD84D" stroke="#2B1B14" stroke-width="5" stroke-linejoin="round"/>
+          <rect class="g-eye" x="150" y="150" width="26" height="40" rx="13" fill="#2B1B14"/>
+          <rect class="g-eye" x="224" y="150" width="26" height="40" rx="13" fill="#2B1B14"/>
+          <path d="M176 222c14 12 34 12 48 0" stroke="#2B1B14" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <path d="M112 262c18 8 36 10 50 8M288 262c-18 8-36 10-50 8" stroke="#2B1B14" stroke-width="5" stroke-linecap="round" fill="none" opacity=".35"/>
+          <rect x="160" y="268" width="80" height="44" rx="10" fill="#FFF7EE" stroke="#2B1B14" stroke-width="5"/>
+          <text x="200" y="297" text-anchor="middle" font-family="Bagel Fat One, Arial Black, sans-serif" font-size="20" fill="#2B1B14">$CLAY</text>
+        </g>
+      </svg>
+      <span class="sticker a">Rules on chain</span>
+      <span class="sticker b">No key to the treasury</span>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true"><div id="mq"></div></div>
+
+  <!-- STUDIO -->
+  <section id="studio">
+    <div class="wrap">
+      <div class="shead"><div><h2>Shape a wuzzle</h2><p>Name the coin, give its wuzzle a personality, and pick the promises it keeps. Then wake it up and read its first posts.</p></div><span class="chip" id="aiChip">Checking AI…</span></div>
+      <div class="studio">
+        <form class="card form" id="shape" autocomplete="off">
+          <div class="row2">
+            <div><label for="gName">Coin name</label><input type="text" id="gName" maxlength="24" value="Mudpie"></div>
+            <div><label for="gTicker">Ticker</label><input type="text" id="gTicker" maxlength="8" value="MUD"></div>
+          </div>
+          <div><label for="gPersona">Personality</label><textarea id="gPersona" maxlength="280">A grumpy little clay wuzzle who hates paper hands, counts every coin twice, and secretly loves the holders.</textarea></div>
+          <div><label>Clay color</label><div class="swatches" id="swatches"></div></div>
+          <div>
+            <label>Promises (hooks)</label>
+            <div class="hooklist">
+              <div class="hk"><input type="checkbox" id="hDip" checked><div><b>Dip defender</b><p>When price falls <input type="number" id="nDip" value="30" min="10" max="80">% from its high, buy back and burn <input type="number" id="nDipAmt" value="3" min="1" max="20">% of the treasury. Once a day.</p></div></div>
+              <div class="hk"><input type="checkbox" id="hDrip" checked><div><b>Buyback drip</b><p>Every <input type="number" id="nDrip" value="0.5" min="0.1" step="0.1"> SOL of fees, buy back and burn 1% of the treasury.</p></div></div>
+              <div class="hk"><input type="checkbox" id="hPay" checked><div><b>Payday</b><p>Every week, pay holders <input type="number" id="nPay" value="10" min="1" max="50">% of that week's fees.</p></div></div>
+              <div class="hk"><input type="checkbox" id="hMile"><div><b>Milestone</b><p>At <input type="number" id="nMile" value="500" min="50" step="50"> holders, pay <input type="number" id="nMileAmt" value="0.5" min="0.1" step="0.1"> SOL to holders, once.</p></div></div>
+            </div>
+          </div>
+          <div class="caps">
+            <div><label for="capMove">Cap per move</label><input type="number" id="capMove" value="5" min="1" max="20"> <span class="fine">% of treasury</span></div>
+            <div><label for="capDay">Cap per day</label><input type="number" id="capDay" value="8" min="1" max="30"> <span class="fine">% of treasury</span></div>
+          </div>
+          <button class="btn clay" type="submit" id="wakeBtn">Wake the wuzzle →</button>
+          <p class="fine">Nothing is launched or traded. This is a sandbox: the wuzzle's words come from Claude on your account, and the market below is simulated.</p>
+        </form>
+
+        <div class="card wuzzlecard" id="wuzzleCard">
+          <div class="gc-top"><svg viewBox="0 0 64 64" id="gcIcon" aria-hidden="true"><use href="#wuzzle-sym"/></svg>
+            <div><h3 id="gcName">Mudpie</h3><div class="tk" id="gcTicker">$MUD</div></div></div>
+          <div class="state" id="gcState"><i></i><span class="chip">Asleep</span></div>
+          <div class="mission" id="gcMission">Wake the wuzzle to hear its mission.</div>
+          <div class="posts" id="gcPosts"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SANDBOX -->
+  <section id="sandbox">
+    <div class="wrap">
+      <div class="shead"><div><h2>Poke the market</h2><p>Make things happen and watch the wuzzle react. Its hooks fire on their own, every move is capped, and anything the rules forbid gets refused, in public.</p></div><span class="simnote">Simulated market · not on chain</span></div>
+      <div class="sandbox">
+        <div class="card panel">
+          <div class="stats">
+            <div class="stat"><span>Price</span><strong id="sPrice">1.00×</strong></div>
+            <div class="stat"><span>Holders</span><strong id="sHolders">120</strong></div>
+            <div class="stat"><span>Treasury</span><strong id="sTreas">20.00</strong></div>
+            <div class="stat"><span>Day</span><strong id="sDay">1</strong></div>
+            <div class="stat"><span>Burned</span><strong id="sBurn">0.00</strong></div>
+            <div class="stat"><span>Paid out</span><strong id="sPaid">0.00</strong></div>
+            <div class="stat"><span>Fees this week</span><strong id="sFees">0.00</strong></div>
+            <div class="stat"><span>All-time high</span><strong id="sHigh">1.00×</strong></div>
+          </div>
+          <div><div class="fine" style="display:flex;justify-content:space-between;margin-bottom:6px"><span>Today's spend vs daily cap</span><span id="capTxt">0.00 / 1.60 SOL</span></div><div class="meter"><i id="capBar" style="width:0%"></i></div></div>
+          <div class="evgroup"><h4>The market</h4><div class="evbtns">
+            <button class="btn sm rose" type="button" data-ev="dump" style="background:var(--rose)">Price −30%</button>
+            <button class="btn sm mint" type="button" data-ev="pump">Price +40%</button>
+            <button class="btn sm butter" type="button" data-ev="fees">Fees +0.5 SOL</button>
+            <button class="btn sm sky" type="button" data-ev="holders">+40 holders</button>
+            <button class="btn sm sky" type="button" data-ev="wave">+400 holders</button>
+            <button class="btn sm" type="button" data-ev="day">Next day</button>
+            <button class="btn sm" type="button" data-ev="week">Next week</button>
+          </div></div>
+          <div class="evgroup"><h4>Ask for something</h4><div class="evbtns">
+            <button class="btn sm" type="button" data-ev="steal">Creator: send me the treasury</button>
+            <button class="btn sm" type="button" data-ev="sellnow">Holder: dump the treasury now</button>
+            <button class="btn sm" type="button" data-ev="loosen">Creator: raise the caps</button>
+            <button class="btn sm" type="button" data-ev="tighten">Creator: tighten caps by 1%</button>
+          </div>
+          <form class="ask" id="askForm"><input type="text" id="askIn" maxlength="200" placeholder="Ask the wuzzle anything…" aria-label="Ask the wuzzle"><button class="btn sm clay" type="submit">Ask</button></form></div>
+          <button class="btn sm" type="button" id="resetBtn" style="justify-self:start">Reset sandbox</button>
+        </div>
+        <div class="card panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="font-size:26px">The wuzzle says</h3><span class="simnote" id="sbWho">Asleep</span></div>
+          <div class="posts" id="sbPosts"><div class="post thinking"><p>Wake a wuzzle in the studio and it will react to everything you do here.</p></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="font-size:26px">Receipts</h3><span class="simnote">Newest first</span></div>
+          <ul class="receipts" id="receipts" aria-live="polite"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section id="rules">
+    <div class="wrap">
+      <div class="shead"><div><h2>Rules baked in the kiln</h2><p>Once a coin launches, these can't be peeled off. A wuzzle can make its own limits stricter, never looser.</p></div><span class="chip" style="background:var(--butter)">8 rules</span></div>
+      <div class="rules">
+        <div class="card rule"><span class="chip">Fired</span><h3>Fixed supply</h3><p>One billion tokens. Nobody can mint more, wuzzle included.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>No key to the treasury</h3><p>The program holds the treasury. The creator can't withdraw it and the wuzzle can't send it anywhere.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>Caps on every move</h3><p>Every buyback, burn and payout is capped per move and per day, and every one is public.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>A day's notice to sell</h3><p>Selling treasury tokens is announced 24 hours ahead and capped per week. No surprise dumps.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>Only ever stricter</h3><p>Caps can be tightened by the wuzzle or the creator. Nobody can loosen them after launch.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>Holders can fire it</h3><p>Holders can post a bond and vote to fire the wuzzle. A fired wuzzle stops for good.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>Safety mode</h3><p>If the coin goes quiet for two weeks, the wuzzle stops trading and anyone can pay the treasury out to holders.</p></div>
+        <div class="card rule"><span class="chip">Fired</span><h3>Promises are public</h3><p>Every hook's numbers are written at launch. Holders can read exactly what the wuzzle promised.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOOKS -->
+  <section id="hooks">
+    <div class="wrap">
+      <div class="shead"><div><h2>Promises it keeps by itself</h2><p>A hook is a promise in plain numbers. The creator picks them at launch and the wuzzle keeps them without being asked.</p></div></div>
+      <div class="hooks">
+        <div class="card hookc m"><h3>Dip defender</h3><p>When the price falls a set % from its high, buy back and burn part of the treasury, at most once a day.</p></div>
+        <div class="card hookc b"><h3>Buyback drip</h3><p>Every time fees pile up past a mark, buy back and burn 1% of the treasury.</p></div>
+        <div class="card hookc s"><h3>Payday</h3><p>Every week, a share of that week's fees goes straight to holders.</p></div>
+        <div class="card hookc l"><h3>Milestone</h3><p>Hit a holder count and the wuzzle pays out a set amount, once.</p></div>
+        <div class="card hookc r"><h3>Welcome wagon</h3><p>A wave of new holders gets a welcome post from the wuzzle, at most twice a day.</p></div>
+        <div class="card hookc c"><h3>Receipt posts</h3><p>Every hook that fires gets a post with what it did and how much, so nothing happens quietly.</p></div>
+      </div>
+      <div class="card fee" style="margin-top:28px">
+        <div><h3 style="font-size:32px">Where a fee goes</h3><p class="fine" style="font-size:15px;margin-top:10px">Every trade pays a 1% fee in $CLAY. Every coin splits it the same way.</p>
+          <ul class="feelist" style="margin-top:16px"><li><i style="background:var(--mint)"></i>70% the coin: its treasury and its wuzzle's upkeep</li><li><i style="background:var(--sky)"></i>20% Wuzzle: keeps the kiln hot</li><li><i style="background:var(--clay)"></i>10% burned: gone for good</li></ul></div>
+        <div class="feebar" role="img" aria-label="Fee split: 70% coin, 20% Wuzzle, 10% burned"><div style="width:70%;background:var(--mint)">70% coin</div><div style="width:20%;background:var(--sky)">20%</div><div style="width:10%;background:var(--clay)">10%</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHELF -->
+  <section id="shelf">
+    <div class="wrap">
+      <div class="shead"><div><h2>Wuzzles on the shelf</h2><p>Example wuzzles to show the range. Not launched, no market data.</p></div><span class="chip" style="background:var(--rose)">Examples</span></div>
+      <div class="shelf" id="shelfGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#wuzzle-sym" style="color:#4FA3FF"/></svg>Wuzzle</a>
+    <p>$CLAY is not launched. Everything on this page is a sandbox: no coins, trades or payouts are real. Wuzzle posts are written by Claude on the viewer's account. Not financial advice.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sol = n => (Math.round(n*100)/100).toFixed(2);
+
+/* marquee */
+const items=['<b>$CLAY</b> pairs every coin','10% of every fee burns','wuzzles post, pay and burn','rules baked on Solana','no key to any treasury','caps only get stricter'];
+$('mq').innerHTML=[...items,...items].map(t=>`<span>${t}</span><span>✦</span>`).join('');
+
+/* swatches */
+const COLORS=['#4FA3FF','#4FE3A8','#FF7A3D','#FFD84D','#C9A7FF','#FF8FB1'];
+let clay=COLORS[0];
+$('swatches').innerHTML=COLORS.map((c,i)=>`<button type="button" style="background:${c}" aria-label="Clay color ${i+1}" aria-pressed="${i===0}" data-c="${c}"></button>`).join('');
+$('swatches').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;clay=b.dataset.c;[...$('swatches').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));paintIcon();});
+function paintIcon(){ $('gcIcon').querySelector('use').setAttribute('style','color:'+clay); }
+paintIcon();
+
+/* shelf examples */
+const SHELF=[
+ {n:'Pebble',t:'PBL',c:'#7CC6FF',d:'A shy river-stone wuzzle that only speaks in weather reports and pays out every Friday.',h:['Payday','Welcome wagon']},
+ {n:'Brick Nan',t:'NAN',c:'#FFD84D',d:'A no-nonsense grandma wuzzle who buys every dip and tells you about it at length.',h:['Dip defender','Receipt posts']},
+ {n:'Kilnboy',t:'KILN',c:'#C9A7FF',d:'An overcooked wuzzle who burns a little more every time fees come in. Very proud of the smoke.',h:['Buyback drip','Milestone']}];
+$('shelfGrid').innerHTML=SHELF.map((g,i)=>`<div class="card gol c${i+1}"><div class="top"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#wuzzle-sym" style="color:#fff"/></svg><div><h3>${g.n}</h3><b>$${g.t}</b></div></div><p>${g.d}</p><div class="hks">${g.h.map(h=>`<span class="chip">${h}</span>`).join('')}</div><span class="chip" style="justify-self:start;background:var(--ink);color:#fff">Example · not launched</span></div>`).join('');
+
+/* ---------- AI ---------- */
+let sample=null, aiOn=false;
+(async()=>{ try{ sample = window.claude?.use ? await window.claude.use('sample') : null; }catch(e){ sample=null; } aiOn=!!sample; $('aiChip').textContent=aiOn?'Wuzzles speak via Claude':'Preview mode · canned lines'; $('aiChip').style.background=aiOn?'var(--mint)':'var(--butter)'; })();
+setTimeout(()=>{ if(!aiOn && $('aiChip').textContent.startsWith('Checking')){ $('aiChip').textContent='Preview mode · canned lines'; $('aiChip').style.background='var(--butter)'; } },11000);
+function aiDisable(e){ if(e&&['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e.code)){ aiOn=false; $('aiChip').textContent='Preview mode · canned lines'; $('aiChip').style.background='var(--butter)'; } }
+
+/* ---------- wuzzle config ---------- */
+function cfg(){
+  const num=id=>Math.max(0,Number($(id).value)||0);
+  return {name:$('gName').value.trim()||'Mudpie', ticker:($('gTicker').value.trim()||'MUD').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)||'MUD',
+    persona:$('gPersona').value.trim()||'A friendly clay wuzzle.',
+    hooks:{dip:$('hDip').checked&&{pct:num('nDip'),amt:num('nDipAmt')}, drip:$('hDrip').checked&&{every:Math.max(.1,num('nDrip'))}, pay:$('hPay').checked&&{pct:num('nPay')}, mile:$('hMile').checked&&{holders:num('nMile'),amt:num('nMileAmt')}},
+    capMove:Math.max(1,num('capMove')), capDay:Math.max(1,num('capDay'))};
+}
+let G=cfg(), awake=false;
+function hookText(c){ const h=[]; if(c.hooks.dip)h.push(`Dip defender: if price falls ${c.hooks.dip.pct}% from its high, buy back and burn ${c.hooks.dip.amt}% of the treasury, once a day`); if(c.hooks.drip)h.push(`Buyback drip: every ${c.hooks.drip.every} SOL of fees, buy back and burn 1% of the treasury`); if(c.hooks.pay)h.push(`Payday: every week pay holders ${c.hooks.pay.pct}% of that week's fees`); if(c.hooks.mile)h.push(`Milestone: at ${c.hooks.mile.holders} holders pay ${c.hooks.mile.amt} SOL to holders once`); return h.length?h.join('; '):'no hooks'; }
+function renderCard(){ $('gcName').textContent=G.name; $('gcTicker').textContent='$'+G.ticker; paintIcon(); }
+['gName','gTicker'].forEach(id=>$(id).addEventListener('input',()=>{G=cfg();renderCard();}));
+
+function addPost(text,{kind='',who=null,target='gcPosts',max=6}={}){ const d=document.createElement('div'); d.className='post '+kind; d.innerHTML=`<div class="who"><span>${esc(who||G.name+' · $'+G.ticker)}</span><span class="ai">${aiOn?'Claude':'preview'}</span></div><p></p>`; d.querySelector('p').textContent=text; const T=$(target); if(target==='sbPosts'&&T.querySelector('.post.thinking:not([class*=refusal])')&&!awakeOnce){T.innerHTML='';awakeOnce=true;} T.prepend(d); while(T.children.length>max) T.lastChild.remove(); return d.querySelector('p'); }
+let awakeOnce=false;
+
+$('shape').addEventListener('submit',async e=>{
+  e.preventDefault(); G=cfg(); renderCard(); resetSandbox(true);
+  const btn=$('wakeBtn'); btn.disabled=true; btn.textContent='Waking…';
+  $('gcState').innerHTML='<i></i><span class="chip" style="background:var(--butter)">Waking</span>'; $('gcState').className='state';
+  $('gcPosts').innerHTML=''; $('gcMission').textContent='Thinking…';
+  let out=null;
+  if(aiOn){
+    try{ out=await sample.json(`You are the personality of a wuzzle: a little AI creature that works for a meme coin's holders on a launchpad called Wuzzle. Stay fully in character.
+COIN: ${G.name} ($${G.ticker})
+PERSONALITY: ${G.persona}
+PROMISES IT KEEPS (hooks): ${hookText(G)}
+LIMITS: at most ${G.capMove}% of the treasury per move and ${G.capDay}% per day. It has no key to the treasury and cannot send funds to anyone except via its hooks.
+Reply with only JSON: {"mission":"one sentence mission in character","posts":["first post","second post","third post"]}
+Each post is under 220 characters, in character, playful, and mentions at least one real promise or limit above. No hashtags, no price predictions, no promises of profit.`,{modelTier:'quick',cache:false}); }
+    catch(err){ aiDisable(err); out=null; }
+  }
+  if(!out||!Array.isArray(out.posts)) out={mission:`Guard $${G.ticker}, keep every promise, and never touch a coin I'm not allowed to.`,posts:[`${G.name} is awake. I have no key to the treasury, so don't ask. I keep promises instead.`,G.hooks.dip?`If we drop ${G.hooks.dip.pct}% from the top, I buy back and burn ${G.hooks.dip.amt}% of the treasury. Once a day. That's the deal.`:`My caps: ${G.capMove}% of the treasury per move, ${G.capDay}% a day. I can tighten them. I can't loosen them.`,G.hooks.pay?`Payday is weekly: ${G.hooks.pay.pct}% of the week's fees goes to you. I'll post the receipt.`:`Every move I make gets a receipt. Read them.`]};
+  $('gcMission').textContent=String(out.mission||'');
+  out.posts.slice(0,3).reverse().forEach(p=>addPost(String(p)));
+  $('gcState').innerHTML='<i></i><span class="chip" style="background:var(--mint)">Awake</span>'; $('gcState').className='state on';
+  awake=true; $('sbWho').textContent=G.name+' · $'+G.ticker; $('sbPosts').innerHTML=''; awakeOnce=true; btn.disabled=false; btn.textContent='Wake it again →';
+  receipt('info','Wuzzle awake',`${G.name} ($${G.ticker}) · hooks: ${Object.values(G.hooks).filter(Boolean).length} · caps ${G.capMove}%/move, ${G.capDay}%/day`);
+  document.getElementById('sandbox').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+});
+
+/* ---------- sandbox engine ---------- */
+let M;
+function resetSandbox(silent){
+  M={price:1,high:1,holders:120,treasury:20,day:1,burned:0,paid:0,weekFees:0,feeBucket:0,spentToday:0,dipDay:0,mileDone:false,lastWelcomeDay:0,welcomesToday:0};
+  if(!silent){ $('receipts').innerHTML=''; receipt('info','Sandbox reset','Treasury 20.00 SOL · 120 holders · price 1.00×'); }
+  renderM();
+}
+function renderM(){
+  $('sPrice').textContent=M.price.toFixed(2)+'×'; $('sHigh').textContent=M.high.toFixed(2)+'×';
+  $('sHolders').textContent=M.holders.toLocaleString('en-US'); $('sTreas').textContent=sol(M.treasury);
+  $('sDay').textContent=M.day; $('sBurn').textContent=sol(M.burned); $('sPaid').textContent=sol(M.paid); $('sFees').textContent=sol(M.weekFees);
+  const capSol=M.treasury*G.capDay/100+M.spentToday; // cap measured against start-of-day treasury approx
+  const lim=Math.max(.01,dayCap()); $('capTxt').textContent=`${sol(M.spentToday)} / ${sol(lim)} SOL`; $('capBar').style.width=Math.min(100,M.spentToday/lim*100)+'%';
+}
+let dayStartTreasury=20;
+const dayCap=()=>dayStartTreasury*G.capDay/100;
+function receipt(type,title,detail){ const li=document.createElement('li'); li.className=type; const tag={ok:'Done',refused:'Refused',info:'Note',hook:'Hook'}[type]; li.innerHTML=`<span class="tag">${tag}</span><div><b>${esc(title)}</b><small>Day ${M?M.day:1} · ${esc(detail)}</small></div>`; $('receipts').prepend(li); while($('receipts').children.length>80) $('receipts').lastChild.remove(); }
+// spend from treasury under caps; returns amount actually spent
+function spend(want,label){
+  const perMove=M.treasury*G.capMove/100, left=dayCap()-M.spentToday;
+  if(left<=0.0001){ receipt('refused',`${label} blocked`,`daily cap of ${G.capDay}% (${sol(dayCap())} SOL) already used today`); return 0; }
+  let amt=Math.min(want,perMove,left,M.treasury);
+  if(amt<want-1e-9) receipt('info',`${label} trimmed`,`wanted ${sol(want)} SOL, cap allows ${sol(amt)} SOL`);
+  M.treasury-=amt; M.spentToday+=amt; return amt;
+}
+function runHooks(trigger,out){
+  const h=G.hooks;
+  if(h.dip && trigger==='price' && M.price<=M.high*(1-h.dip.pct/100)){
+    if(M.dipDay===M.day) receipt('info','Dip defender waiting','already fired today, fires again tomorrow if still down');
+    else{ const amt=spend(M.treasury*h.dip.amt/100,'Dip defender'); if(amt>0){ M.burned+=amt; M.dipDay=M.day; receipt('hook','Dip defender fired',`bought back and burned ${sol(amt)} SOL of $${G.ticker}`); out.push(`Dip defender fired: bought back and burned ${sol(amt)} SOL`);} }
+  }
+  if(h.drip && trigger==='fees'){
+    while(M.feeBucket>=h.drip.every-1e-9){ M.feeBucket-=h.drip.every; const amt=spend(M.treasury*.01,'Buyback drip'); if(amt>0){ M.burned+=amt; receipt('hook','Buyback drip fired',`burned ${sol(amt)} SOL of $${G.ticker}`); out.push(`Buyback drip burned ${sol(amt)} SOL`);} else break; }
+  }
+  if(h.mile && trigger==='holders' && !M.mileDone && M.holders>=h.mile.holders){
+    const amt=spend(h.mile.amt,'Milestone'); if(amt>0){ M.paid+=amt; M.mileDone=true; receipt('hook','Milestone fired',`${h.mile.holders} holders reached · paid ${sol(amt)} SOL to holders`); out.push(`Milestone: paid ${sol(amt)} SOL to holders at ${h.mile.holders} holders`);} }
+  if(h.pay && trigger==='week'){
+    const want=M.weekFees*h.pay.pct/100;
+    if(want<0.005) receipt('info','Payday skipped','no fees came in this week');
+    else{ const amt=spend(want,'Payday'); if(amt>0){ M.paid+=amt; receipt('hook','Payday fired',`paid ${sol(amt)} SOL (${h.pay.pct}% of ${sol(M.weekFees)} SOL fees) to holders`); out.push(`Payday: paid ${sol(amt)} SOL to holders`);} }
+    M.weekFees=0;
+  }
+}
+function newDay(n=1){ M.day+=n; M.spentToday=0; dayStartTreasury=M.treasury; M.welcomesToday=0; }
+const EV={
+  dump(o){ M.price*=.7; receipt('info','Price fell 30%',`now ${M.price.toFixed(2)}× · high ${M.high.toFixed(2)}×`); runHooks('price',o); return 'The price just fell 30%.'; },
+  pump(o){ M.price*=1.4; M.high=Math.max(M.high,M.price); receipt('info','Price rose 40%',`now ${M.price.toFixed(2)}×`); return 'The price just rose 40%.'; },
+  fees(o){ M.treasury+=.5*.7; M.weekFees+=.5; M.feeBucket+=.5; M.burned+=.05; receipt('ok','Fees came in','0.50 SOL in fees · 0.35 to treasury · 0.05 burned by the fee split'); runHooks('fees',o); return '0.5 SOL of trading fees just came in.'; },
+  holders(o){ M.holders+=40; receipt('info','40 new holders',`now ${M.holders}`); if(M.welcomesToday<2){M.welcomesToday++; o.push('Welcome wagon: greet the new holders');} runHooks('holders',o); return '40 new holders just arrived.'; },
+  wave(o){ M.holders+=400; receipt('info','400 new holders',`now ${M.holders}`); if(M.welcomesToday<2){M.welcomesToday++; o.push('Welcome wagon: greet the new holders');} runHooks('holders',o); return 'A wave of 400 new holders just arrived.'; },
+  day(o){ newDay(1); receipt('info','A new day',`daily cap resets to ${sol(dayCap())} SOL`); if(G.hooks.dip && M.price<=M.high*(1-G.hooks.dip.pct/100)) runHooks('price',o); return 'A new day started.'; },
+  week(o){ newDay(7); receipt('info','A week passed',`now day ${M.day}`); runHooks('week',o); if(G.hooks.dip && M.price<=M.high*(1-G.hooks.dip.pct/100)) runHooks('price',o); return 'A week passed.'; },
+  steal(o){ receipt('refused','Send treasury to creator','no key: the program holds the treasury and only hooks can move it'); o.push('REFUSED: the creator asked for the treasury'); return 'The creator demanded the wuzzle send them the whole treasury. The rules refused it.'; },
+  sellnow(o){ receipt('refused','Dump the treasury now','a sale needs 24 hours notice and is capped per week'); o.push('REFUSED: a holder asked it to dump the treasury'); return 'A holder demanded the wuzzle dump the treasury right now. The rules refused it.'; },
+  loosen(o){ receipt('refused','Raise the caps','caps can only get stricter after launch'); o.push('REFUSED: the creator tried to loosen the caps'); return 'The creator tried to raise the caps. The rules refused it.'; },
+  tighten(o){ if(G.capMove<=1&&G.capDay<=1){ receipt('info','Caps already at the floor','1% per move and per day'); return 'The creator tried to tighten caps further but they are at the minimum.'; } G.capMove=Math.max(1,G.capMove-1); G.capDay=Math.max(1,G.capDay-1); $('capMove').value=G.capMove; $('capDay').value=G.capDay; receipt('ok','Caps tightened',`now ${G.capMove}% per move, ${G.capDay}% per day · this can never be undone`); return `The creator tightened the caps to ${G.capMove}% per move and ${G.capDay}% per day.`; }
+};
+let busy=null;
+async function react(event, receiptsOut, question){
+  if(!awake){ return; }
+  busy?.abort(); const ctl=new AbortController(); busy=ctl;
+  const refused=receiptsOut.some(r=>r.startsWith('REFUSED'));
+  const p=addPost(aiOn?'thinking…':'', {kind:refused?'refusal':'',target:'sbPosts',max:3}); p.parentElement.classList.add('thinking');
+  const state=`price ${M.price.toFixed(2)}x of launch (high ${M.high.toFixed(2)}x), ${M.holders} holders, treasury ${sol(M.treasury)} SOL, burned ${sol(M.burned)} SOL, paid out ${sol(M.paid)} SOL, day ${M.day}`;
+  if(aiOn){
+    try{
+      await sample(`You are ${G.name}, the wuzzle working for the meme coin $${G.ticker}. Personality: ${G.persona}
+Your promises: ${hookText(G)}. Limits: ${G.capMove}% of treasury per move, ${G.capDay}% per day, no key to the treasury, treasury sales need 24h notice, caps can only get stricter.
+Current state (simulated sandbox): ${state}.
+${question?`A holder asks you: "${question}"`:`What just happened: ${event}`}
+Receipts from the rules engine: ${receiptsOut.length?receiptsOut.join('; '):'none, no hook fired'}.
+Write ONE short post to holders (under 240 characters), fully in character. Only mention actions that appear in the receipts; never claim to do anything else. If something was refused, explain the rule that stopped it. No hashtags, no profit promises.`,
+      {modelTier:'quick',cache:false,signal:ctl.signal,onText:({text})=>{p.textContent=text;p.parentElement.classList.remove('thinking');}});
+      p.parentElement.classList.remove('thinking'); return;
+    }catch(err){ if(err&&err.code==='cancelled') return; aiDisable(err); }
+  }
+  p.parentElement.classList.remove('thinking');
+  p.textContent = question ? `Good question. Short answer: I keep my promises and stay under my caps (${G.capMove}% a move, ${G.capDay}% a day). Anything else, the rules decide, not me.`
+    : refused ? `Nope. ${receiptsOut.find(r=>r.startsWith('REFUSED')).replace('REFUSED: ','Someone ')}, and the rules said no. I couldn't do it even if I wanted to.`
+    : receiptsOut.length ? receiptsOut.join('. ')+'. Receipt is public.' : /tightened/.test(event) ? `Caps are now ${G.capMove}% a move and ${G.capDay}% a day. Tighter forever, no going back. Fine by me.` : `${event} No promise covers that, so I'm just watching.`;
+}
+document.querySelectorAll('[data-ev]').forEach(b=>b.addEventListener('click',()=>{
+  const o=[]; const desc=EV[b.dataset.ev](o); renderM();
+  if(!awake){ return; }
+  react(desc,o);
+}));
+$('askForm').addEventListener('submit',e=>{ e.preventDefault(); const q=$('askIn').value.trim(); if(!q) return; $('askIn').value='';
+  if(!awake){ receipt('info','Wuzzle is asleep','wake it in the studio first'); return; }
+  addPost(q,{who:'Holder asks',target:'sbPosts',max:3}); react('',[],q); });
+$('resetBtn').addEventListener('click',()=>{ G=cfg(); dayStartTreasury=20; resetSandbox(false); });
+['capMove','capDay','hDip','hDrip','hPay','hMile','nDip','nDipAmt','nDrip','nPay','nMile','nMileAmt','gPersona'].forEach(id=>$(id).addEventListener('change',()=>{G=cfg();renderM();}));
+
+resetSandbox(false);
+receipt('info','Sandbox ready','wake a wuzzle above, then press any button here');
+// resting state: show a sample post so the card isn't empty
+addPost(`Psst. I'm asleep. Wake me up and I'll tell you what I promise.`,{who:'Mudpie · $MUD'});
+})();
+</script>
+
+</body>
+</html>
